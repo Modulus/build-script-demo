@@ -12,7 +12,7 @@ fn main() {
             Path::new("target")
                     .join("release")
                     .join("resources"))
-                        .expect_err("Failed to create resource forlder for release");
+                        .expect_err("Failed to create resource folder for release");
 
     fs::copy(
         Path::new("resources")
