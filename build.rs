@@ -1,32 +1,48 @@
 use std::fs;
+use std::env;
 use std::path::Path;
 
-fn main() {
+fn main()  ->  Result<(), std::io::Error> {
+
+    match env::var("OUT_DIR") {
+        Ok(out_dir) => {
+            println!("Output is: {:?}", out_dir);
+            if out_dir.contains("debug"){
+                println!("Targetting release!");
+                create_target_dir(String::from("debug"))?;
+                copy_file(String::from("debug"), String::from("config.yaml"))?;
+            }
+            else if out_dir.contains("release"){
+                create_target_dir(String::from("release"))?;
+                copy_file(String::from("release"), String::from("config.yaml"))?;               
+            }
+        
+        }
+        Err(e) => {
+            panic!("Failed to get OUT_DIR! {:?}", e);
+        }
+    }
+
+    Ok(())
+
+
+}
+
+
+fn create_target_dir(target: String) -> Result<(), std::io::Error>{
     fs::create_dir_all(
         Path::new("target")
-        .join("debug")
-        .join("resources"))
-        .expect("Failed to create resource forlder for debug");
-    
-        fs::create_dir_all(
-            Path::new("target")
-                    .join("release")
-                    .join("resources"))
-                    .expect("Failed to create resource folder for release");
+                .join(target)
+                .join("resources"))
 
+}
+
+fn copy_file(target: String, file: String) -> Result<u64, std::io::Error>{
     fs::copy(
         Path::new("resources")
-                .join("config.yaml"), 
+                .join(&file), 
                 Path::new("target")
-                    .join("debug")
+                    .join(target)
                     .join("resources")
-                    .join("config.yaml")).expect("Failed to copy config.yaml to resources folder in debug");
-    
-    fs::copy(
-        Path::new("resources")
-            .join("config.yaml"), 
-            Path::new("target")
-                .join("release")
-                .join("resources")
-                .join("config.yaml")).expect("Failed to copy config.yaml to resources folder in release");
+                    .join(&file))
 }
